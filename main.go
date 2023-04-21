@@ -3,15 +3,18 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
+	"path/filepath"
+	"strconv"
+	"strings"
 )
 
 func main() {
 	mode := flag.String("mode", "", "[REQUIRED] local, remote, or dir")
-	srcUrl := flag.String("url", "", "[REQUIRED] the url of the source image or, if mode=dir, the path of the target directory")
+	srcUrl := flag.String("url", "", "[REQUIRED] the url of the source image or, if -mode=dir, the path of the target directory")
 	toFileType := flag.String("to", "", "[REQUIRED] the file format of the output image; gif, jpeg, png, and tiff are supported")
 	dstDir := flag.String("dstDir", "", "the path of the destination directory; if not specified, the current working directory will be used")
 	dstFileName := flag.String("out", "", "the path of the output file; if not specified, the source file name (with an updated extension) will be used (see docs for exceptions); if the path is absolute, it overrides dstDir, but, otherwise, it is relative to dstDir (if specified) or the current working directory; cannot be used in dir mode")
-	//resample := flag.Bool("resample", false, "whether to resample the source image; if true, additional height/width parameter(s) must also be specified")
 	maxSidePixels := flag.Int("maxSidePixels", -1, "size of the greatest dimension of the output image rectangle in pixels; preserves the proportions of the source image")
 	minSidePixels := flag.Int("minSidePixels", -1, "size of the smallest dimension of the output image rectangle in pixels; preserves the proportions of the source image")
 	scaleToHeight := flag.Int("scaleToHeight", -1, "size of the output image height in pixels; preserves the proportions of the source image")
@@ -40,10 +43,8 @@ func main() {
 	)
 	rsmplCfg := NewResampleCfg(
 		WithAllowUpsize(*allowUpsize),
-		WithMinOrMaxSidePixels(*minSidePixels, *maxSidePixels),
-		WithScaleToHeightOrWidth(*scaleToHeight, *scaleToWidth),
-		WithHeightAndOrWidth(*height, *width),
-		WithAlgorithm(*interpolator),
+		WithRescale(*height, *width, *scaleToHeight, *scaleToWidth, *maxSidePixels, *minSidePixels),
+		WithInterpolator(*interpolator),
 	)
 	var b []byte
 	var t FileType
@@ -81,6 +82,24 @@ func main() {
 		fmt.Println(err.Error())
 		return
 	}
+
+	// check if file path already exists, and adjust name to avoid collisions
+	if _, err = os.Stat(dstPath); err == nil {
+		var version int
+		fdir := filepath.Dir(dstPath)
+		fNameExt := filepath.Base(dstPath)
+		fNameExtSlice := strings.Split(fNameExt, ".")
+		if len(fNameExt) < 1 {
+			fmt.Println("invalid output file path " + dstPath)
+			return
+		}
+		for ; err == nil; version++ {
+			dstNameVersionExt := fNameExtSlice[0] + "_v" + strconv.Itoa(version+1) + "." + fNameExtSlice[1]
+			dstPath = filepath.Join(fdir, dstNameVersionExt)
+			_, err = os.Stat(dstPath)
+		}
+	}
+
 	err = SaveFile(img, dstPath, encCfg)
 	if err != nil {
 		fmt.Println(err.Error())

@@ -6,7 +6,7 @@
 <p>When running imgconv, the following parameters are mandatory:
 <pre><code>-mode string [REQUIRED] local, remote, or dir
 -to string [REQUIRED] the file format of the output image; gif, jpeg, png, and tiff are supported
--url string [REQUIRED] the url of the source image or, if mode=dir, the path of the target directory</code></pre>
+-url string [REQUIRED] the url of the source image or, if -mode=dir, the path of the target directory</code></pre>
 A complete list of accepted parameters can be found in the Flags section.
 </p>
 <h2>mode</h2>

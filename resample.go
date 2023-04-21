@@ -14,7 +14,7 @@ type ResampleCfg struct {
 	ScaleToWidth  int
 	Width         int
 	Height        int
-	Algorithm     draw.Interpolator
+	Interpolator  draw.Interpolator
 	AllowUpsize   bool
 }
 
@@ -27,7 +27,7 @@ func NewResampleCfg(opts ...ResampleOpt) ResampleCfg {
 		ScaleToWidth:  -1,
 		Width:         -1,
 		Height:        -1,
-		Algorithm:     draw.CatmullRom,
+		Interpolator:  draw.CatmullRom,
 		AllowUpsize:   false,
 	}
 	for _, opt := range opts {
@@ -44,78 +44,54 @@ func WithAllowUpsize(allowUpsize bool) func(*ResampleCfg) {
 	}
 }
 
-func WithMinOrMaxSidePixels(min, max int) func(*ResampleCfg) {
-	// choose max if both are valid
-	if max > 0 {
+func WithRescale(height, width, scaleToHeight, scaleToWidth, maxSidePixels, minSidePixels int) func(*ResampleCfg) {
+	if height > 0 || width > 0 {
 		return func(r *ResampleCfg) {
 			r.IsUsed = true
-			r.MaxSidePxls = max
+			r.Height = height
+			r.Width = width
 		}
 	}
-
-	if min > 0 {
+	if scaleToHeight > 0 {
 		return func(r *ResampleCfg) {
 			r.IsUsed = true
-			r.MinSidePxls = min
+			r.ScaleToHeight = scaleToHeight
 		}
 	}
-
-	return func(r *ResampleCfg) {}
+	if scaleToWidth > 0 {
+		return func(r *ResampleCfg) {
+			r.IsUsed = true
+			r.ScaleToWidth = scaleToWidth
+		}
+	}
+	if maxSidePixels > 0 {
+		return func(r *ResampleCfg) {
+			r.IsUsed = true
+			r.MaxSidePxls = maxSidePixels
+		}
+	}
+	if minSidePixels > 0 {
+		return func(r *ResampleCfg) {
+			r.IsUsed = true
+			r.MinSidePxls = minSidePixels
+		}
+	}
+	return func(*ResampleCfg) {}
 }
 
-func WithScaleToHeightOrWidth(h, w int) func(*ResampleCfg) {
-	if h > 0 {
-		return func(r *ResampleCfg) {
-			r.IsUsed = true
-			r.ScaleToHeight = h
-
-			r.MaxSidePxls = -1
-			r.MinSidePxls = -1
-		}
-	}
-	if w > 0 {
-		return func(r *ResampleCfg) {
-			r.IsUsed = true
-			r.ScaleToWidth = w
-
-			r.MaxSidePxls = -1
-			r.MinSidePxls = -1
-		}
-	}
-	return func(r *ResampleCfg) {}
-}
-
-func WithHeightAndOrWidth(h, w int) func(*ResampleCfg) {
-	// overrides MinSidePxls and MaxSidePxls if specified
-	if h > 0 || w > 0 {
-		return func(r *ResampleCfg) {
-			r.IsUsed = true
-			r.MaxSidePxls = -1
-			r.MinSidePxls = -1
-			r.ScaleToHeight = -1
-			r.ScaleToWidth = -1
-
-			r.Height = h
-			r.Width = w
-		}
-
-	}
-	return func(r *ResampleCfg) {}
-}
-
-func WithAlgorithm(s string) func(r *ResampleCfg) {
+func WithInterpolator(s string) func(r *ResampleCfg) {
 	switch s {
 	case "CatmullRom":
 		return func(r *ResampleCfg) {
-			r.Algorithm = draw.CatmullRom
+			r.Interpolator = draw.CatmullRom
 		}
 	case "NearestNeighbor":
 		return func(r *ResampleCfg) {
-			r.Algorithm = draw.NearestNeighbor
+			r.Interpolator = draw.NearestNeighbor
 		}
 	case "ApproxBiLinear":
 		return func(r *ResampleCfg) {
-			r.Algorithm = draw.ApproxBiLinear
+			r.Interpolator = draw.ApproxBiLinear
 		}
 	default:
 		return func(r *ResampleCfg) {}
@@ -200,6 +176,6 @@ func DstRect(srcRect image.Rectangle, cfg ResampleCfg) image.Rectangle {
 func Rescale(src image.Image, cfg ResampleCfg) image.Image {
 	dstRect := DstRect(src.Bounds(), cfg)
 	dstImg := image.NewNRGBA(dstRect)
-	cfg.Algorithm.Scale(dstImg, dstImg.Bounds(), src, src.Bounds(), draw.Over, nil)
+	cfg.Interpolator.Scale(dstImg, dstImg.Bounds(), src, src.Bounds(), draw.Over, nil)
 	return dstImg
 }
