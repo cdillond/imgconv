@@ -7,28 +7,28 @@ import (
 
 func main() {
 	mode := flag.String("mode", "", "[REQUIRED] local, remote, or dir")
-	srcUrl := flag.String("url", "", "[REQUIRED] the url of the source image OR path of the target directory (if mode=dir)")
+	srcUrl := flag.String("url", "", "[REQUIRED] the url of the source image or, if mode=dir, the path of the target directory")
 	toFileType := flag.String("to", "", "[REQUIRED] the file format of the output image; gif, jpeg, png, and tiff are supported")
 	dstDir := flag.String("dstDir", "", "the path of the destination directory; if not specified, the current working directory will be used")
-	dstFileName := flag.String("out", "", "the path of the output file; if not specified, the source file name (with an updated extension) will be used (the destination file will be assigned a random name if the source file name cannot be parsed); if the path is absolute, it overrides dstDir, but, otherwise, it is relative to dstDir (if specified) or the current working directory; local and remote mode only")
-	resample := flag.Bool("resample", false, "whether to resample the source image; if true, additional height/width parameter(s) must also be specified")
-	maxSidePixels := flag.Int("maxSidePixels", -1, "size of the greatest dimension of the destination image rectangle in pixels when rescaled; preserves the proportions of the source image")
-	minSidePixels := flag.Int("minSidePixels", -1, "size of the smallest dimension of the destination image rectangle in pixels when rescaled; preserves the proportions of the source image")
-	scaleToHeight := flag.Int("scaleToHeight", -1, "length of the destination image height in pixels; the width of the destination image will be scaled to retain the source image's original proportions")
-	scaleToWidth := flag.Int("scaleToWidth", -1, "length of the destination image width in pixels; the height of the destination image will be scaled to retain the source image's original proportions")
-	height := flag.Int("height", -1, "height of the output image in pixels; the source image's proportions will not be preserved")
-	width := flag.Int("width", -1, "width of the output image in pixels when resized; the source image's proportions will not be preserved")
+	dstFileName := flag.String("out", "", "the path of the output file; if not specified, the source file name (with an updated extension) will be used (see docs for exceptions); if the path is absolute, it overrides dstDir, but, otherwise, it is relative to dstDir (if specified) or the current working directory; cannot be used in dir mode")
+	//resample := flag.Bool("resample", false, "whether to resample the source image; if true, additional height/width parameter(s) must also be specified")
+	maxSidePixels := flag.Int("maxSidePixels", -1, "size of the greatest dimension of the output image rectangle in pixels; preserves the proportions of the source image")
+	minSidePixels := flag.Int("minSidePixels", -1, "size of the smallest dimension of the output image rectangle in pixels; preserves the proportions of the source image")
+	scaleToHeight := flag.Int("scaleToHeight", -1, "size of the output image height in pixels; preserves the proportions of the source image")
+	scaleToWidth := flag.Int("scaleToWidth", -1, "size of the output image width in pixels; preserves the proportions of the source image")
+	height := flag.Int("height", -1, "height of the output image in pixels; does not preserve the proportions of the source image")
+	width := flag.Int("width", -1, "width of the output image in pixels; does not preserve the proportions of the source image")
 	allowUpsize := flag.Bool("allowUpsize", false, "permit image pixel dimensions to increase when resizing")
-	jpegQuality := flag.Uint("jpegQual", 100, "specify the image quality of output jpeg files; accepted values are 0-100 (low - high)")
-	gifNumColors := flag.Uint("gifNumColors", 256, "specify the number of colors in output gif files; accepted values are 1-256")
-	interpolator := flag.String("interpolator", "", "specify the interpolation algorithm used to resample images; options are CatmullRom (default, slow/high quality), NearestNeighbor (fast/poor quality), and ApproxBiLinear (medium/medium)")
-	recursive := flag.Bool("recursive", false, "if true and dirMode=true, imgconv will parse all files in the target directory, including all subdirectories")
-	maxProcs := flag.Uint("maxProcs", 10, "the maximum number of concurrent files that can be processed in dirMode (min: 1, default: 10); higher may be quicker, but can also lead to greater memory consumption")
+	jpegQuality := flag.Uint("jpegQual", 100, "the image quality of output jpeg files; accepted values are 0-100 (low - high)")
+	gifNumColors := flag.Uint("gifNumColors", 256, "the maximum number of colors in output gif files; accepted values are 1-256")
+	interpolator := flag.String("interpolator", "", "the interpolation algorithm used to resample images; options are CatmullRom (default, low speed/high quality), NearestNeighbor (high speed/low quality), and ApproxBiLinear (medium speed/medium quality)")
+	recursive := flag.Bool("recursive", false, "if true and mode=dir, imgconv will parse all files in the target directory, including all subdirectories")
+	maxProcs := flag.Uint("maxProcs", 10, "the maximum number of files that can be processed in parallel in dir mode")
 
 	flag.Parse()
 
 	dstFormat := StringToFileType(*toFileType)
-	if dstFormat > 4 {
+	if dstFormat > 3 {
 		fmt.Println("unsupported output file format")
 		return
 	}
@@ -39,7 +39,6 @@ func main() {
 		WithGifNumColors(int(*gifNumColors)),
 	)
 	rsmplCfg := NewResampleCfg(
-		*resample,
 		WithAllowUpsize(*allowUpsize),
 		WithMinOrMaxSidePixels(*minSidePixels, *maxSidePixels),
 		WithScaleToHeightOrWidth(*scaleToHeight, *scaleToWidth),
@@ -74,7 +73,7 @@ func main() {
 		fmt.Println(err.Error())
 		return
 	}
-	if *resample {
+	if rsmplCfg.IsUsed {
 		img = Rescale(img, rsmplCfg)
 	}
 	dstPath, err := GetDstFilePath(*dstFileName, *dstDir, *srcUrl, *mode == "remote", dstFormat)

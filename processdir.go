@@ -26,7 +26,6 @@ func (e *ErrCounter) Increment() {
 }
 
 func ProcessDir(targetDir, dstDir string, maxProcs uint, recursive bool, encCfg EncodeCfg, rsmplCfg ResampleCfg) error {
-	//errs := make([]error, 0)
 	tdir, err := filepath.Abs(targetDir)
 	if err != nil {
 		return err
@@ -34,6 +33,7 @@ func ProcessDir(targetDir, dstDir string, maxProcs uint, recursive bool, encCfg 
 	// gather list of all files to parse
 	var files []string
 
+	// user this to prevent file path name collisions
 	v := Versioner{
 		seen: make(map[string]int),
 		m:    sync.Mutex{},
@@ -51,12 +51,14 @@ func ProcessDir(targetDir, dstDir string, maxProcs uint, recursive bool, encCfg 
 		}
 		if !d.IsDir() {
 			files = append(files, path)
-			// this is done synchronously, so no need to bother with mutex
-			// this will protect against overwriting already existing files
+			// this is part happens synchronously, so no need to bother with a mutex
 			v.seen[path] = 0
 		}
 		return nil
 	})
+	if err != nil {
+		return err
+	}
 
 	workerChan := make(chan struct{}, maxProcs)
 	var wg sync.WaitGroup
@@ -92,7 +94,7 @@ func ProcessDir(targetDir, dstDir string, maxProcs uint, recursive bool, encCfg 
 				ec.Increment()
 				return
 			}
-			// this part will have to be serialized
+			// this part cannot happen asynchronously
 			v.m.Lock()
 			version, collision := v.seen[dstPath]
 			if collision {
@@ -100,6 +102,7 @@ func ProcessDir(targetDir, dstDir string, maxProcs uint, recursive bool, encCfg 
 				dir := filepath.Dir(dstPath)
 				baseNameExt := strings.Split(base, ".")
 				if len(baseNameExt) < 1 {
+					// this almost certainly will never happen
 					v.m.Unlock()
 					ec.Increment()
 					return

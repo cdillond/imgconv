@@ -18,9 +18,9 @@ type ResampleCfg struct {
 	AllowUpsize   bool
 }
 
-func NewResampleCfg(isUsed bool, opts ...ResampleOpt) ResampleCfg {
+func NewResampleCfg(opts ...ResampleOpt) ResampleCfg {
 	cfg := ResampleCfg{
-		IsUsed:        isUsed,
+		IsUsed:        false,
 		MaxSidePxls:   -1,
 		MinSidePxls:   -1,
 		ScaleToHeight: -1,
@@ -44,35 +44,29 @@ func WithAllowUpsize(allowUpsize bool) func(*ResampleCfg) {
 	}
 }
 
-func WithIsUsed(isUsed bool) func(*ResampleCfg) {
-	return func(r *ResampleCfg) {
-		r.IsUsed = isUsed
-	}
-}
-
 func WithMinOrMaxSidePixels(min, max int) func(*ResampleCfg) {
 	// choose max if both are valid
-	if min > 0 && max > 0 {
+	if max > 0 {
 		return func(r *ResampleCfg) {
+			r.IsUsed = true
 			r.MaxSidePxls = max
 		}
 	}
+
 	if min > 0 {
 		return func(r *ResampleCfg) {
+			r.IsUsed = true
 			r.MinSidePxls = min
 		}
 	}
-	if max > 0 {
-		return func(r *ResampleCfg) {
-			r.MaxSidePxls = max
-		}
-	}
+
 	return func(r *ResampleCfg) {}
 }
 
 func WithScaleToHeightOrWidth(h, w int) func(*ResampleCfg) {
 	if h > 0 {
 		return func(r *ResampleCfg) {
+			r.IsUsed = true
 			r.ScaleToHeight = h
 
 			r.MaxSidePxls = -1
@@ -81,6 +75,7 @@ func WithScaleToHeightOrWidth(h, w int) func(*ResampleCfg) {
 	}
 	if w > 0 {
 		return func(r *ResampleCfg) {
+			r.IsUsed = true
 			r.ScaleToWidth = w
 
 			r.MaxSidePxls = -1
@@ -94,6 +89,7 @@ func WithHeightAndOrWidth(h, w int) func(*ResampleCfg) {
 	// overrides MinSidePxls and MaxSidePxls if specified
 	if h > 0 || w > 0 {
 		return func(r *ResampleCfg) {
+			r.IsUsed = true
 			r.MaxSidePxls = -1
 			r.MinSidePxls = -1
 			r.ScaleToHeight = -1
