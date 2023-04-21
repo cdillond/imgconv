@@ -1,14 +1,12 @@
 <h2>About</h2> 
-<p>Imgconv is a CLI tool for basic image manipulation. It can be used to convert images from jpeg, gif, png, tiff, and webp files to jpeg, gif, png, or tiff files. It can also be used to rescale images. Imgconv is powered mainly by Go's standard image library, and it doesn't require the use of cgo. Because of this, it is currently unable to encode webp files.</p>
+<p>Imgconv is a CLI tool for basic image manipulation. It can be used to convert jpeg, gif, png, tiff, and webp files to jpeg, gif, png, or tiff files. It can also be used to rescale images. Imgconv is powered mainly by Go's standard image library, and it doesn't require the use of cgo. Because of this, it is currently unable to encode webp files.</p>
 
 <h2>How to Use</h2>
 <p>To begin, clone this repository and compile it using the Go compiler.</p>
-<p>When running imgconv, the following parameters are mandatory:<br>
-<code>
--mode string [REQUIRED] local, remote, or dir<br>
--to string [REQUIRED] the file format of the output image; gif, jpeg, png, and tiff are supported<br>
--url string [REQUIRED] the url of the source image or, if mode=dir, the path of the target directory<br>
-</code>
+<p>When running imgconv, the following parameters are mandatory:
+<pre><code>-mode string [REQUIRED] local, remote, or dir
+-to string [REQUIRED] the file format of the output image; gif, jpeg, png, and tiff are supported
+-url string [REQUIRED] the url of the source image or, if mode=dir, the path of the target directory</code></pre>
 A complete list of accepted parameters can be found in the Flags section.
 </p>
 <h2>mode</h2>
