@@ -31,7 +31,7 @@ func main() {
 	flag.Parse()
 
 	dstFormat := StringToFileType(*toFileType)
-	if dstFormat > 3 {
+	if dstFormat > 4 {
 		fmt.Println("unsupported output file format")
 		return
 	}

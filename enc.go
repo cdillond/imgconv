@@ -53,7 +53,6 @@ func WithGifNumColors(n int) func(*EncodeCfg) {
 
 /*
 TO DO
-
 func WithGifQuantizer(q draw.Quantizer) func(*EncodeCfg) {
 	return func(e *EncodeCfg) {
 		e.GifQuantizer = q
@@ -76,6 +75,8 @@ func Encode(img image.Image, w io.Writer, cfg EncodeCfg) error {
 		return tiff.Encode(w, img, &tiff.Options{
 			Compression: cfg.TiffCompType,
 			Predictor:   cfg.TiffPredictor})
+	case WEBP:
+		return EncodeWebp()
 	default:
 		return errors.New("unsupported file type")
 	}

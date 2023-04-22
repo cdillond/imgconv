@@ -1,5 +1,5 @@
 <h2>About</h2> 
-<p>Imgconv is a CLI tool for basic image manipulation. It can be used to convert jpeg, gif, png, tiff, and webp files to jpeg, gif, png, or tiff files. It can also be used to rescale images. Imgconv is powered mainly by Go's standard image library, and it doesn't require the use of cgo. Because of this, it is currently unable to encode webp files.</p>
+<p>Imgconv is a CLI tool for basic image manipulation. It can be used to convert jpeg, gif, png, tiff, and webp files to jpeg, gif, png, or tiff files. It can also be used to rescale images. Imgconv is powered mainly by Go's standard image library, and it doesn't require the use of cgo. Encoding webp files is currently unsupported.</p>
 
 <h2>How to Use</h2>
 <p>To begin, clone this repository and compile it using the Go compiler.</p>
@@ -32,7 +32,7 @@ A complete list of accepted parameters can be found in the Flags section.
 <h3>Naming procedure</h3>
 <p>By default, files will be saved under the same name as the source file, with the appropriate file extension. This behavior can be modified using the <code>-out</code> flag. Important exceptions include:
 <ol>
-<li>File names that contain periods may be truncated, and may not be able to be parsed correctly.</li>
+<li>File names that contain periods may be truncated, and may not be parsed correctly.</li>
 <li>If an output file name cannot be parsed, a name will be assigned at random.</li>
 <li>If an output file name conflicts with an existing file, "_v" and a version number will be appended to the end of the new file name.</li>
 </ol></p>
