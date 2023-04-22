@@ -1,8 +1,10 @@
 <h2>About</h2> 
-<p>Imgconv is a CLI tool for basic image manipulation. It can be used to convert jpeg, gif, png, tiff, and webp files to jpeg, gif, png, or tiff files. It can also be used to rescale images. Imgconv is powered mainly by Go's standard image library, and it doesn't require the use of cgo. Encoding webp files is currently unsupported.</p>
+<p>Imgconv is a CLI tool for basic image manipulation. It can be used to convert jpeg, gif, png, tiff, and webp files to jpeg, gif, png, or tiff files. It can also be used to rescale images. Imgconv is powered mainly by Go's standard image library, and it doesn't require the use of cgo. Encoding webp files is currently unsupported by default.</p>
 
 <h2>How to Use</h2>
-<p>To begin, clone this repository and compile it using the Go compiler.</p>
+<p>To begin, clone this repository and compile it using the Go compiler.
+<pre>$ git clone https://github.com/cdillond/imgconv<br>$ cd imgconv<br>$ go build</pre>
+</p>
 <p>When running imgconv, the following parameters are mandatory:
 <pre><code>-mode string [REQUIRED] local, remote, or dir
 -to string [REQUIRED] the file format of the output image; gif, jpeg, png, and tiff are supported
@@ -59,3 +61,8 @@ The following flags are accepted:
 <tr><td><code>-url</code></td><td><code>string</code></td><td><b>[REQUIRED]</b> the url of the source image or, if <code>-mode=dir</code>, the path of the target directory</td><td></td></tr>
 <tr><td><code>-width</code></td><td><code>int</code></td><td>width of the output image in pixels; does not preserve the proportions of the source image</td><td></td></tr>
 </table>
+<h2>Enabling webp encoding</h2>
+<p>imgconv provides <i>experimental</i> support for webp encoding via bindings to Google's <a href="https://developers.google.com/speed/webp/download">libwebp</a> C library. To use this feature, libwebp must be installed in a standard location. When building imgconv, use the <code>webpenc</code> build tag.
+<pre>$ sudo apt-get install libwebp-dev<br>$ go env -w CGO_ENABLED=1<br>$ go build -tags webpenc</pre>
+This solution is suboptimal, and setting it up may be more hassle than it is worth.
+</p>
