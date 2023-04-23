@@ -60,7 +60,7 @@ func EncodeWebP(w io.Writer, img image.Image, o WebPOptions) error {
 			C.int(rgba.Rect.Max.X),
 			C.int(rgba.Rect.Max.Y),
 			C.int(rgba.Stride),
-			C.float(float32(o.WebPQuality)),
+			C.float(float32(o.Quality)),
 			output)
 		if err != nil {
 			return err
