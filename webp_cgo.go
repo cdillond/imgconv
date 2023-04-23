@@ -49,7 +49,7 @@ func EncodeWebP(w io.Writer, img image.Image, opt WebPOptions) error {
 	// i'm not sure what happens if it overflows this... might be bad!
 	// the pointers get a little confusing, but output is a uint8_t**
 	// it points to a pointer to the memory allocated by C.malloc
-	p := (*C.uint8_t)(C.malloc(C.int(len(nrgba.Pix) + 256)))
+	p := (*C.uint8_t)(C.malloc(C.ulong(len(nrgba.Pix) + 256)))
 	defer C.free(unsafe.Pointer(p)) // DO NOT FORGET
 	output := &p
 
