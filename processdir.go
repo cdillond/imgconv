@@ -33,21 +33,19 @@ func ProcessDir(targetDir, dstDir string, maxProcs uint, recursive bool, encCfg 
 	// gather list of all files to parse
 	var files []string
 
-	// user this to prevent file path name collisions
+	// use this to prevent file path name collisions
 	v := Versioner{
 		seen: make(map[string]int),
 		m:    sync.Mutex{},
 	}
 	err = filepath.WalkDir(tdir, func(path string, d fs.DirEntry, err error) error {
+		// needed because errors are filterd through the fn passed to filepath.WalkDir
 		if err != nil {
 			return err
 		}
 		// skip directory only if d is a directory and d is not the root directory and recursive is false
 		if d.IsDir() && path != tdir && !recursive {
 			return fs.SkipDir
-		}
-		if err != nil {
-			return err
 		}
 		if !d.IsDir() {
 			files = append(files, path)
