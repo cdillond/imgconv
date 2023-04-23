@@ -65,7 +65,7 @@ The following flags are accepted:
 <li>If an output file name conflicts with an existing file, "_v" and a version number will be appended to the end of the new file name.</li>
 </ol></p>
 <h2>Enabling webp encoding</h2>
-<p>Imgconv provides <i>experimental</i> support for webp encoding via bindings to Google's <a href="https://developers.google.com/speed/webp/download">libwebp</a> C library. To use this feature, libwebp must be installed in a standard location and cgo must be enabled. When building imgconv, include <code>webpenc</code> as a build tag.
+<p>Imgconv provides <i>experimental</i> support for webp encoding via bindings to Google's <a href="https://developers.google.com/speed/webp/download">libwebp</a> C library. To use this feature, libwebp must be installed in a standard location and cgo must be enabled. When building imgconv, include <code>webpenc</code> as a build tag. On Linux systems, this can be achieved using the following commands:
 <pre>$ sudo apt-get install libwebp-dev<br>$ go env -w CGO_ENABLED=1<br>$ go build -tags webpenc</pre>
-This solution is suboptimal, and setting it up might be more hassle than it is worth. It has only been tested on Linux.
+This solution is suboptimal, and setting it up might be more hassle than it is worth. It has only been tested on Linux and Windows.
 </p>
