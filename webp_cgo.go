@@ -33,7 +33,7 @@ func EncodeWebP(w io.Writer, img image.Image, o WebPOptions) error {
 	// check if already an NRGBA image (n.b. NRGBA = non-premultiplied alpha RGBA)
 	rgba, ok := img.(*image.NRGBA)
 	if !ok {
-		// if not, draw src image to rgba
+		// if not, draw img to rgba
 		rgba = image.NewNRGBA(img.Bounds())
 		draw.Draw(rgba, rgba.Bounds(), img, img.Bounds().Min, draw.Src)
 	}
@@ -53,6 +53,7 @@ func EncodeWebP(w io.Writer, img image.Image, o WebPOptions) error {
 	rgba_pixels := (*C.uint8_t)(&rgba.Pix[0])
 
 	var s C.size_t
+	var err error
 	switch o.Lossy {
 	case true:
 		s, err = C.encodeLossyRGBA(rgba_pixels,

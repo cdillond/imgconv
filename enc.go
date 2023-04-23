@@ -43,15 +43,29 @@ func NewEncodeCfg(fileType FileType, opts ...EncodeOpt) EncodeCfg {
 	return cfg
 }
 
+// I think these inputs are validated by the image package anyway, but might as well be safe...
 func WithJpegQuality(n int) func(*EncodeCfg) {
 	return func(e *EncodeCfg) {
-		e.JpegQuality = n
+		if n < 0 {
+			e.JpegQuality = 0
+		} else if n > 100 {
+			e.JpegQuality = 100
+		} else {
+			e.JpegQuality = n
+		}
+
 	}
 }
 
 func WithGifNumColors(n int) func(*EncodeCfg) {
 	return func(e *EncodeCfg) {
-		e.GifNumColors = n
+		if n < 0 {
+			e.GifNumColors = 1
+		} else if n > 256 {
+			e.GifNumColors = 256
+		} else {
+			e.GifNumColors = n
+		}
 	}
 }
 
@@ -63,7 +77,11 @@ func WithWebPLossy(l bool) func(*EncodeCfg) {
 
 func WithWebPQual(u uint) func(*EncodeCfg) {
 	return func(e *EncodeCfg) {
-		e.WebPQuality = u
+		if u > 100 {
+			e.WebPQuality = 100
+		} else {
+			e.WebPQuality = u
+		}
 	}
 }
 

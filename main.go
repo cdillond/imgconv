@@ -47,7 +47,7 @@ func main() {
 		WithJpegQuality(int(*jpegQuality)),
 		WithGifNumColors(int(*gifNumColors)),
 		WithWebPLossy(*webpLossy),
-		WithWebPQual(int(*webpQuality)),
+		WithWebPQual(*webpQuality),
 	)
 	rsmplCfg := NewResampleCfg(
 		WithAllowUpsize(*allowUpsize),
