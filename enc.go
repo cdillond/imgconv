@@ -20,6 +20,8 @@ type EncodeCfg struct {
 	JpegQuality   int
 	TiffCompType  tiff.CompressionType
 	TiffPredictor bool
+	WebPLossy     bool
+	WebPQuality   uint
 }
 type EncodeOpt func(*EncodeCfg)
 
@@ -32,6 +34,8 @@ func NewEncodeCfg(fileType FileType, opts ...EncodeOpt) EncodeCfg {
 		JpegQuality:   100,
 		TiffCompType:  0,
 		TiffPredictor: false,
+		WebPLossy:     false,
+		WebPQuality:   100,
 	}
 	for _, opt := range opts {
 		opt(&cfg)
@@ -48,6 +52,18 @@ func WithJpegQuality(n int) func(*EncodeCfg) {
 func WithGifNumColors(n int) func(*EncodeCfg) {
 	return func(e *EncodeCfg) {
 		e.GifNumColors = n
+	}
+}
+
+func WithWebPLossy(l bool) func(*EncodeCfg) {
+	return func(e *EncodeCfg) {
+		e.WebPLossy = l
+	}
+}
+
+func WithWebPQual(u uint) func(*EncodeCfg) {
+	return func(e *EncodeCfg) {
+		e.WebPQuality = u
 	}
 }
 
@@ -76,7 +92,7 @@ func Encode(img image.Image, w io.Writer, cfg EncodeCfg) error {
 			Compression: cfg.TiffCompType,
 			Predictor:   cfg.TiffPredictor})
 	case WEBP:
-		return EncodeWebp()
+		return EncodeWebP(w, img, WebPOptions{cfg.WebPLossy, cfg.WebPQuality})
 	default:
 		return errors.New("unsupported file type")
 	}

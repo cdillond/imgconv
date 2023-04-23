@@ -25,13 +25,19 @@ func main() {
 	jpegQuality := flag.Uint("jpegQual", 100, "the image quality of output jpeg files; accepted values are 0-100 (low - high)")
 	gifNumColors := flag.Uint("gifNumColors", 256, "the maximum number of colors in output gif files; accepted values are 1-256")
 	interpolator := flag.String("interpolator", "", "the interpolation algorithm used to resample images; options are CatmullRom (default, low speed/high quality), NearestNeighbor (high speed/low quality), and ApproxBiLinear (medium speed/medium quality)")
-	recursive := flag.Bool("recursive", false, "if true and mode=dir, imgconv will parse all files in the target directory, including all subdirectories")
+	recursive := flag.Bool("recursive", false, "if true and -mode=dir, imgconv will parse all files in the target directory, including all subdirectories")
 	maxProcs := flag.Uint("maxProcs", 10, "the maximum number of files that can be processed in parallel in dir mode")
+	webpLossy := flag.Bool("webpLossy", false, "if true, lossy compression will be used for webp encoding")
+	webpQuality := flag.Uint("webpQual", 100, "the image quality of output webp files when -webpLossy=true; accepted values are 0-100 (low - high)")
 
 	flag.Parse()
 
 	dstFormat := StringToFileType(*toFileType)
-	if dstFormat > 4 {
+	if dstFormat > MAX_ENCODE_TYPE { // defined in webp.go and webp_cgo.go
+		if MAX_ENCODE_TYPE < WEBP {
+			fmt.Println("webp encoding is not enabled; review the documentation at github.com/cdillond/imgconv for details")
+			return
+		}
 		fmt.Println("unsupported output file format")
 		return
 	}
@@ -40,6 +46,8 @@ func main() {
 		dstFormat,
 		WithJpegQuality(int(*jpegQuality)),
 		WithGifNumColors(int(*gifNumColors)),
+		WithWebPLossy(*webpLossy),
+		WithWebPQual(int(*webpQuality)),
 	)
 	rsmplCfg := NewResampleCfg(
 		WithAllowUpsize(*allowUpsize),

@@ -1,2 +1,6 @@
-webp
-/webp
+*.webp
+*.jpeg
+*.gif
+*.tiff
+*.jpg
+*.exe
