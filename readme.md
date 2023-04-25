@@ -3,7 +3,7 @@
 
 <h2>How to Use</h2>
 <p>To begin, clone this repository and compile it using the Go compiler.
-<pre>$ git clone https://github.com/cdillond/imgconv<br>$ cd imgconv/cmd</br>$ go build</pre>
+<pre>$ git clone https://github.com/cdillond/imgconv<br>$ cd imgconv</br>$ go build ./cmd/imgconv</pre>
 </p>
 <p>When running imgconv, the following parameters are mandatory:
 <pre><code>-mode string [REQUIRED] local, remote, or dir
@@ -66,6 +66,6 @@ The following flags are accepted:
 </ol></p>
 <h2>Enabling webp encoding</h2>
 <p>Imgconv provides <i>experimental</i> support for webp encoding via bindings to Google's <a href="https://developers.google.com/speed/webp/download">libwebp</a> C library. To use this feature, libwebp must be installed in a standard location and cgo must be enabled. When building imgconv, include <code>webpenc</code> as a build tag. On Linux systems, this can be achieved using the following commands:
-<pre>$ sudo apt-get install libwebp-dev<br>$ go env -w CGO_ENABLED=1<br>$ go build -tags webpenc</pre>
+<pre>$ sudo apt-get install libwebp-dev<br>$ git clone https://github.com/cdillond/imgconv<br>$ cd imgconv<br>$ go env -w CGO_ENABLED=1<br>$ go build -tags webpenc ./cmd/imgconv</pre>
 This solution is suboptimal, and setting it up might be more hassle than it is worth. It has only been tested on Linux and Windows.
 </p>
