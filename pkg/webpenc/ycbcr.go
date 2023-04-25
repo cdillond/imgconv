@@ -10,13 +10,12 @@ package webpenc
    	#include <errno.h>
 
 uint8_t* encodeLossyYCbCr(float quality, int width, int height, uint8_t* y, uint8_t* u, uint8_t* v, int y_stride, int uv_stride, size_t* size) {
-	int ok;
+
 	WebPPicture img;
 	WebPConfig cfg;
 	WebPMemoryWriter writer;
 
-	ok = WebPConfigInitInternal(&cfg, 0, quality, WEBP_ENCODER_ABI_VERSION);
-  	if (!ok) {
+  	if (!WebPConfigInitInternal(&cfg, 0, quality, WEBP_ENCODER_ABI_VERSION)) {
 		return writer.mem;
 	}
 
@@ -38,8 +37,7 @@ uint8_t* encodeLossyYCbCr(float quality, int width, int height, uint8_t* y, uint
 	img.custom_ptr = &writer;
  	img.writer = WebPMemoryWrite;
 
-	ok = WebPEncode(&cfg, &img);
-	if (!ok) {
+	if (!WebPEncode(&cfg, &img)) {
 		return writer.mem;
 	}
 	*size = writer.size;

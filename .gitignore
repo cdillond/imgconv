@@ -5,5 +5,5 @@
 *.jpg
 *.png
 *.exe
-imgconv
+cmd/cmd
 .vscode
