@@ -3,7 +3,7 @@
 
 <h2>How to Use</h2>
 <p>To begin, clone this repository and compile it using the Go compiler.
-<pre>$ git clone https://github.com/cdillond/imgconv<br>$ cd imgconv<br>$ go build</pre>
+<pre>$ git clone https://github.com/cdillond/imgconv<br>$ cd imgconv/cmd</br>$ go build</pre>
 </p>
 <p>When running imgconv, the following parameters are mandatory:
 <pre><code>-mode string [REQUIRED] local, remote, or dir
