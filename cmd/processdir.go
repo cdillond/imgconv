@@ -63,7 +63,6 @@ func ProcessDir(targetDir, dstDir string, maxProcs uint, recursive bool, encCfg 
 		m:     sync.Mutex{},
 	}
 	for _, file := range files {
-
 		// add struct{} into workerChan; this should block if maxProcs is reached
 		workerChan <- struct{}{}
 		wg.Add(1)
@@ -93,9 +92,10 @@ func ProcessDir(targetDir, dstDir string, maxProcs uint, recursive bool, encCfg 
 			}
 
 			// check if file already exists
+			var version int
 			for {
+				// start by checking for conflicts with existing files in the dst directory
 				if _, err = os.Stat(dstPath); err == nil {
-					var version int
 					fdir := filepath.Dir(dstPath)
 					fNameExt := filepath.Base(dstPath)
 					fNameExtSlice := strings.Split(fNameExt, ".")
@@ -109,7 +109,7 @@ func ProcessDir(targetDir, dstDir string, maxProcs uint, recursive bool, encCfg 
 						_, err = os.Stat(dstPath)
 					}
 				}
-				// do one final check to avoid races
+				// do one final check to avoid a race with file writes in other go routines
 				v.m.Lock()
 				_, collision := v.seen[dstPath]
 				if !collision {
@@ -119,7 +119,6 @@ func ProcessDir(targetDir, dstDir string, maxProcs uint, recursive bool, encCfg 
 				}
 				v.m.Unlock()
 			}
-
 			err = SaveFile(img, dstPath, encCfg)
 			if err != nil {
 				ec.Increment()
@@ -132,39 +131,3 @@ func ProcessDir(targetDir, dstDir string, maxProcs uint, recursive bool, encCfg 
 	}
 	return errors.New("ignored " + strconv.Itoa(ec.count) + " error(s)")
 }
-
-/*
-
-
-
- */
-/*
-// this part cannot happen asynchronously
-			v.m.Lock()
-			version, collision := v.seen[dstPath]
-			if collision {
-				// this might lead to some odd semantics, but it's necessary
-				// to prevent, certain edge case overwrites
-				for ; collision; version, collision = v.seen[dstPath] {
-					fmt.Println("collision", dstPath)
-					base := filepath.Base(dstPath)
-					dir := filepath.Dir(dstPath)
-					baseNameExt := strings.Split(base, ".")
-					fmt.Println(dir, baseNameExt, version)
-					if len(baseNameExt) < 1 {
-						// this almost certainly will never happen
-						v.m.Unlock()
-						ec.Increment()
-						return
-					}
-					v.seen[dstPath] = version + 1
-					dstPath = filepath.Join(dir, baseNameExt[0]+"_v"+strconv.Itoa(version+1)+"."+baseNameExt[1])
-				}
-				v.seen[dstPath] = 0
-			} else {
-				v.seen[dstPath] = 0
-			}
-			v.m.Unlock()
-
-
-*/
