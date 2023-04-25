@@ -7,9 +7,11 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+
+	"imgconv/pkg/utils"
 )
 
-func GetBytesAndFileTypeLocal(u string) ([]byte, FileType, error) {
+func GetBytesAndFileTypeLocal(u string) ([]byte, utils.FileType, error) {
 	var b []byte
 	srcPath, err := filepath.Abs(u)
 	if err != nil {
@@ -23,10 +25,10 @@ func GetBytesAndFileTypeLocal(u string) ([]byte, FileType, error) {
 	}
 	defer f.Close()
 	b, err = io.ReadAll(f)
-	return b, StringToFileType(srcExt), err
+	return b, utils.StringToFileType(srcExt), err
 }
 
-func GetBytesAndFileTypeRemote(u string) ([]byte, FileType, error) {
+func GetBytesAndFileTypeRemote(u string) ([]byte, utils.FileType, error) {
 	var b []byte
 	srcUrl, err := url.Parse(u)
 	if err != nil {
@@ -46,7 +48,7 @@ func GetBytesAndFileTypeRemote(u string) ([]byte, FileType, error) {
 			defer resp.Body.Close()
 			mimeType = resp.Header.Get("Content-Type")
 			b, err = io.ReadAll(resp.Body)
-			return b, StringToFileType(mimeType), err
+			return b, utils.StringToFileType(mimeType), err
 		}
 		return b, 6, errors.New("could not infer scheme from incomplete url: " + u)
 	}
@@ -60,5 +62,5 @@ func GetBytesAndFileTypeRemote(u string) ([]byte, FileType, error) {
 	defer resp.Body.Close()
 	mimeType = resp.Header.Get("Content-Type")
 	b, err = io.ReadAll(resp.Body)
-	return b, StringToFileType(mimeType), err
+	return b, utils.StringToFileType(mimeType), err
 }

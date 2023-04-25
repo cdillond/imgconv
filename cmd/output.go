@@ -2,6 +2,7 @@ package main
 
 import (
 	"image"
+	"imgconv/pkg/utils"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -15,11 +16,15 @@ func SaveFile(img image.Image, dstPath string, encCfg EncodeCfg) error {
 	if err != nil {
 		return err
 	}
-	defer f.Close()
-	return Encode(img, f, encCfg)
+	err = Encode(img, f, encCfg)
+	f.Close() // can ignore this error
+	if err != nil {
+		os.Remove(dstPath) // can ignore this error
+	}
+	return err
 }
 
-func GetDstFilePath(dstFileName, dstDir, srcUrl string, isRemote bool, fileType FileType) (string, error) {
+func GetDstFilePath(dstFileName, dstDir, srcUrl string, isRemote bool, fileType utils.FileType) (string, error) {
 	var dstName string
 	if dstFileName != "" {
 		// if -out is an absolute file path, no further action is needed
@@ -51,9 +56,9 @@ func GetDstFilePath(dstFileName, dstDir, srcUrl string, isRemote bool, fileType 
 	srcNameExtSlice := strings.Split(srcFileNameExt, ".")
 	if len(srcNameExtSlice) < 1 {
 		// assign random name
-		dstFileNameExt = uuid.NewString() + "." + FileTypeToString(fileType)
+		dstFileNameExt = uuid.NewString() + "." + utils.FileTypeToString(fileType)
 	} else {
-		dstFileNameExt = srcNameExtSlice[0] + "." + FileTypeToString(fileType)
+		dstFileNameExt = srcNameExtSlice[0] + "." + utils.FileTypeToString(fileType)
 	}
 
 	if dstDir != "" {

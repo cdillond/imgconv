@@ -7,9 +7,14 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
+
+	"imgconv/pkg/utils"
+	"imgconv/pkg/webpenc"
 )
 
 func main() {
+	start := time.Now()
 	mode := flag.String("mode", "", "[REQUIRED] local, remote, or dir")
 	srcUrl := flag.String("url", "", "[REQUIRED] the url of the source image or, if -mode=dir, the path of the target directory")
 	toFileType := flag.String("to", "", "[REQUIRED] the file format of the output image; gif, jpeg, png, and tiff are supported")
@@ -32,9 +37,9 @@ func main() {
 
 	flag.Parse()
 
-	dstFormat := StringToFileType(*toFileType)
-	if dstFormat > MAX_ENCODE_TYPE { // defined in webp.go and webp_cgo.go
-		if MAX_ENCODE_TYPE < WEBP {
+	dstFormat := utils.StringToFileType(*toFileType)
+	if dstFormat > webpenc.MAX_ENCODE_TYPE { // defined in webp.go and webp_cgo.go
+		if webpenc.MAX_ENCODE_TYPE < utils.WEBP {
 			fmt.Println("webp encoding is not enabled; review the documentation at github.com/cdillond/imgconv for details")
 			return
 		}
@@ -55,7 +60,7 @@ func main() {
 		WithInterpolator(*interpolator),
 	)
 	var b []byte
-	var t FileType
+	var t utils.FileType
 	var err error
 
 	switch *mode {
@@ -64,6 +69,7 @@ func main() {
 		if err != nil {
 			fmt.Println(err.Error())
 		}
+		fmt.Println(time.Since(start))
 		return
 	case "local":
 		b, t, err = GetBytesAndFileTypeLocal(*srcUrl)
@@ -112,4 +118,5 @@ func main() {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
+	fmt.Println(time.Since(start))
 }

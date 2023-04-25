@@ -1,6 +1,6 @@
 //go:build cgo && webpenc
 
-package main
+package webpenc
 
 /*
    #cgo LDFLAGS: -lwebp
@@ -22,27 +22,16 @@ import "C"
 import (
 	"errors"
 	"image"
-	"image/draw"
 	"io"
 	"unsafe"
 )
 
-const MAX_ENCODE_TYPE FileType = 4
-
-func EncodeWebP(w io.Writer, img image.Image, opt WebPOptions) error {
-	// check if already an NRGBA image (n.b. NRGBA = non-premultiplied alpha RGBA; libwebp refers to this simply as RGBA)
-	nrgba, ok := img.(*image.NRGBA)
-	if !ok {
-		// if not, draw img to nrgba
-		nrgba = image.NewNRGBA(img.Bounds())
-		draw.Draw(nrgba, nrgba.Bounds(), img, img.Bounds().Min, draw.Src)
-	}
+func EncodeNRGBA(w io.Writer, nrgba *image.NRGBA, opt WebPOptions) error {
 	// guard against a possible panic if len(nrgba.Pix) < 1
 	if len(nrgba.Pix) < 1 {
 		return errors.New("error encoding webp file; could not convert source image to nrgba")
 	}
 	nrgba_pixels := (*C.uint8_t)(&nrgba.Pix[0])
-
 	// allocate C memory for the image. the max size of a WebP file is 4 GiB (1<<33 bytes)
 	// but that seems like too much; instead, i'll assume that the encoding won't require
 	// more memory than the rgba pixels do. i'll add 1<<8 extra bytes as a cushion.
@@ -55,7 +44,7 @@ func EncodeWebP(w io.Writer, img image.Image, opt WebPOptions) error {
 
 	var size C.size_t
 	var err error
-	switch opt.Lossy {
+	switch opt.IsLossy {
 	case true:
 		size, err = C.encodeLossyRGBA(nrgba_pixels,
 			C.int(nrgba.Rect.Max.X),

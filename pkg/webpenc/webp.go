@@ -1,14 +1,16 @@
 //go:build !cgo || !webpenc
 
-package main
+package webpenc
 
 import (
 	"errors"
 	"image"
 	"io"
+
+	"imgconv/pkg/utils"
 )
 
-const MAX_ENCODE_TYPE FileType = 3
+const MAX_ENCODE_TYPE utils.FileType = 3
 
 func EncodeWebP(w io.Writer, img image.Image, opt WebPOptions) error {
 	// this code should be unreachable

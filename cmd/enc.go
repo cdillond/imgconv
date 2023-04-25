@@ -10,10 +10,13 @@ import (
 	"io"
 
 	"golang.org/x/image/tiff"
+
+	"imgconv/pkg/utils"
+	"imgconv/pkg/webpenc"
 )
 
 type EncodeCfg struct {
-	FileType      FileType
+	FileType      utils.FileType
 	GifNumColors  int
 	GifQuantizer  draw.Quantizer
 	GifDrawer     draw.Drawer
@@ -25,7 +28,7 @@ type EncodeCfg struct {
 }
 type EncodeOpt func(*EncodeCfg)
 
-func NewEncodeCfg(fileType FileType, opts ...EncodeOpt) EncodeCfg {
+func NewEncodeCfg(fileType utils.FileType, opts ...EncodeOpt) EncodeCfg {
 	cfg := EncodeCfg{
 		FileType:      fileType,
 		GifNumColors:  256,
@@ -96,21 +99,21 @@ func WithGifQuantizer(q draw.Quantizer) func(*EncodeCfg) {
 
 func Encode(img image.Image, w io.Writer, cfg EncodeCfg) error {
 	switch cfg.FileType {
-	case GIF:
+	case utils.GIF:
 		return gif.Encode(w, img, &gif.Options{
 			NumColors: cfg.GifNumColors,
 			Quantizer: cfg.GifQuantizer,
 			Drawer:    cfg.GifDrawer})
-	case JPEG:
+	case utils.JPEG:
 		return jpeg.Encode(w, img, &jpeg.Options{Quality: cfg.JpegQuality})
-	case PNG:
+	case utils.PNG:
 		return png.Encode(w, img)
-	case TIFF:
+	case utils.TIFF:
 		return tiff.Encode(w, img, &tiff.Options{
 			Compression: cfg.TiffCompType,
 			Predictor:   cfg.TiffPredictor})
-	case WEBP:
-		return EncodeWebP(w, img, WebPOptions{cfg.WebPLossy, cfg.WebPQuality})
+	case utils.WEBP:
+		return webpenc.EncodeWebP(w, img, webpenc.WebPOptions{cfg.WebPLossy, cfg.WebPQuality})
 	default:
 		return errors.New("unsupported file type")
 	}
