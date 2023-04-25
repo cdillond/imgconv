@@ -7,14 +7,12 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-	"time"
 
 	"imgconv/pkg/utils"
 	"imgconv/pkg/webpenc"
 )
 
 func main() {
-	start := time.Now()
 	mode := flag.String("mode", "", "[REQUIRED] local, remote, or dir")
 	srcUrl := flag.String("url", "", "[REQUIRED] the url of the source image or, if -mode=dir, the path of the target directory")
 	toFileType := flag.String("to", "", "[REQUIRED] the file format of the output image; gif, jpeg, png, and tiff are supported")
@@ -69,7 +67,6 @@ func main() {
 		if err != nil {
 			fmt.Println(err.Error())
 		}
-		fmt.Println(time.Since(start))
 		return
 	case "local":
 		b, t, err = GetBytesAndFileTypeLocal(*srcUrl)
@@ -118,5 +115,4 @@ func main() {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	fmt.Println(time.Since(start))
 }
