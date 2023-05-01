@@ -93,7 +93,9 @@ func ProcessDir(targetDir, dstDir string, maxProcs uint, recursive bool, encCfg 
 
 			// check if file already exists
 			var version int
+			origDstPath := dstPath
 			for {
+				dstPath = origDstPath
 				// start by checking for conflicts with existing files in the dst directory
 				if _, err = os.Stat(dstPath); err == nil {
 					fdir := filepath.Dir(dstPath)
