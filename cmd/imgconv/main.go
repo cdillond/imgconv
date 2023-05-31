@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"image"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -57,10 +58,9 @@ func main() {
 		WithRescale(*height, *width, *scaleToHeight, *scaleToWidth, *maxSidePixels, *minSidePixels),
 		WithInterpolator(*interpolator),
 	)
-	var b []byte
-	var t utils.FileType
-	var err error
 
+	var err error
+	var img image.Image
 	switch *mode {
 	case "dir":
 		err = ProcessDir(*srcUrl, *dstDir, *maxProcs, *recursive, encCfg, rsmplCfg)
@@ -69,22 +69,18 @@ func main() {
 		}
 		return
 	case "local":
-		b, t, err = GetBytesAndFileTypeLocal(*srcUrl)
+		img, _, err = DecodeLocal(*srcUrl)
 	case "remote":
-		b, t, err = GetBytesAndFileTypeRemote(*srcUrl)
+		img, _, err = DecodeRemote(*srcUrl)
 	default:
-		fmt.Println("mode flag is required")
+		fmt.Println("valid mode flag is required")
 		return
 	}
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
-	img, err := BytesToImage(b, t)
-	if err != nil {
-		fmt.Println(err.Error())
-		return
-	}
+
 	if rsmplCfg.IsUsed {
 		img = Rescale(img, rsmplCfg)
 	}
@@ -100,7 +96,8 @@ func main() {
 		fdir := filepath.Dir(dstPath)
 		fNameExt := filepath.Base(dstPath)
 		fNameExtSlice := strings.Split(fNameExt, ".")
-		if len(fNameExt) < 1 {
+		if len(fNameExtSlice) <= 1 {
+			// output file names are required to have extensions and should not otherwise include periods
 			fmt.Println("invalid output file path " + dstPath)
 			return
 		}

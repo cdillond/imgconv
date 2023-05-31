@@ -121,5 +121,5 @@ func Encode(img image.Image, w io.Writer, cfg EncodeCfg) error {
 
 /*
 	TODO
-	implement webp encoding
+	implement webp encoding in Go
 */

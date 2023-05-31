@@ -62,22 +62,17 @@ func ProcessDir(targetDir, dstDir string, maxProcs uint, recursive bool, encCfg 
 		count: 0,
 		m:     sync.Mutex{},
 	}
-	for _, file := range files {
+	for _, fPath := range files {
 		// add struct{} into workerChan; this should block if maxProcs is reached
 		workerChan <- struct{}{}
 		wg.Add(1)
-		go func(file string) {
+		go func(srcFilePath string) {
 			defer func() {
 				// remove a struct{} once done processing file
 				<-workerChan
 				wg.Done()
 			}()
-			b, likelySrcFmt, err := GetBytesAndFileTypeLocal(file)
-			if err != nil {
-				ec.Increment()
-				return
-			}
-			img, err := BytesToImage(b, likelySrcFmt)
+			img, _, err := DecodeLocal(srcFilePath)
 			if err != nil {
 				ec.Increment()
 				return
@@ -85,7 +80,7 @@ func ProcessDir(targetDir, dstDir string, maxProcs uint, recursive bool, encCfg 
 			if rsmplCfg.IsUsed {
 				img = Rescale(img, rsmplCfg)
 			}
-			dstPath, err := GetDstFilePath("", dstDir, file, false, encCfg.FileType)
+			dstPath, err := GetDstFilePath("", dstDir, srcFilePath, false, encCfg.FileType)
 			if err != nil {
 				ec.Increment()
 				return
@@ -125,7 +120,7 @@ func ProcessDir(targetDir, dstDir string, maxProcs uint, recursive bool, encCfg 
 			if err != nil {
 				ec.Increment()
 			}
-		}(file)
+		}(fPath)
 	}
 	wg.Wait()
 	if ec.count == 0 {

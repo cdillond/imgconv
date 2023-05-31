@@ -19,7 +19,7 @@ func SaveFile(img image.Image, dstPath string, encCfg EncodeCfg) error {
 	err = Encode(img, f, encCfg)
 	f.Close() // can ignore this error
 	if err != nil {
-		os.Remove(dstPath) // can ignore this error
+		os.Remove(dstPath) // can ignore the error returned here
 	}
 	return err
 }
@@ -27,12 +27,13 @@ func SaveFile(img image.Image, dstPath string, encCfg EncodeCfg) error {
 func GetDstFilePath(dstFileName, dstDir, srcUrl string, isRemote bool, fileType utils.FileType) (string, error) {
 	var dstName string
 	if dstFileName != "" {
+		// TO DO validate dstFileName to avoid possible issues with hidden files, files without extensions, and file names that include multiple periods
 		// if -out is an absolute file path, no further action is needed
 		if filepath.IsAbs(dstFileName) {
 			return dstFileName, nil
 		}
 
-		// if -out is not aboslute, check if -dstDir is specified
+		// if -out is not absolute, check if -dstDir is specified
 		if dstDir != "" {
 			// if so, join -dstDir and -out, and return as an absolute path
 			dstName = filepath.Join(dstDir, dstFileName)
