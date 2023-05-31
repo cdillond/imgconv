@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"path/filepath"
 
 	_ "golang.org/x/image/tiff"
 	_ "golang.org/x/image/webp"
@@ -17,12 +16,8 @@ import (
 	"imgconv/pkg/utils"
 )
 
-func DecodeLocal(u string) (image.Image, utils.FileType, error) {
-	srcPath, err := filepath.Abs(u)
-	if err != nil {
-		return nil, 6, err
-	}
-	f, err := os.Open(srcPath)
+func DecodeLocal(srcUrl string) (image.Image, utils.FileType, error) {
+	f, err := os.Open(srcUrl)
 	if err != nil {
 		return nil, 6, err
 	}
