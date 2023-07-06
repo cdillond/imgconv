@@ -17,11 +17,13 @@ func SaveFile(img image.Image, dstPath string, encCfg EncodeCfg) error {
 		return err
 	}
 	err = Encode(img, f, encCfg)
-	f.Close() // can ignore this error
 	if err != nil {
+		f.Close() // can ignore this error
 		os.Remove(dstPath) // can ignore the error returned here
+		return err
 	}
-	return err
+	f.Close() // can ignore this error
+	return nil
 }
 
 func GetDstFilePath(dstFileName, dstDir, srcUrl string, isRemote bool, fileType utils.FileType) (string, error) {

@@ -40,10 +40,10 @@ func main() {
 	if dstFormat > webpenc.MAX_ENCODE_TYPE { // defined in webp.go and webp_cgo.go
 		if webpenc.MAX_ENCODE_TYPE < utils.WEBP {
 			fmt.Println("webp encoding is not enabled; review the documentation at github.com/cdillond/imgconv for details")
-			return
+			os.Exit(1)
 		}
 		fmt.Println("unsupported output file format")
-		return
+		os.Exit(1)
 	}
 
 	encCfg := NewEncodeCfg(
@@ -66,6 +66,7 @@ func main() {
 		err = ProcessDir(*srcUrl, *dstDir, *maxProcs, *recursive, encCfg, rsmplCfg)
 		if err != nil {
 			fmt.Println(err.Error())
+			os.Exit(1)
 		}
 		return
 	case "local":
@@ -73,12 +74,12 @@ func main() {
 	case "remote":
 		img, _, err = DecodeRemote(*srcUrl)
 	default:
-		fmt.Println("valid mode flag is required")
-		return
+		fmt.Println("a valid mode flag is required")
+		os.Exit(1)
 	}
 	if err != nil {
 		fmt.Println(err.Error())
-		return
+		os.Exit(1)
 	}
 
 	if rsmplCfg.IsUsed {
@@ -87,7 +88,7 @@ func main() {
 	dstPath, err := GetDstFilePath(*dstFileName, *dstDir, *srcUrl, *mode == "remote", dstFormat)
 	if err != nil {
 		fmt.Println(err.Error())
-		return
+		os.Exit(1)
 	}
 
 	// check if file path already exists, and adjust name to avoid collisions
@@ -99,7 +100,7 @@ func main() {
 		if len(fNameExtSlice) <= 1 {
 			// output file names are required to have extensions and should not otherwise include periods
 			fmt.Println("invalid output file path " + dstPath)
-			return
+			os.Exit(1)
 		}
 		for ; err == nil; version++ {
 			dstNameVersionExt := fNameExtSlice[0] + "_v" + strconv.Itoa(version+1) + "." + fNameExtSlice[1]
@@ -111,5 +112,6 @@ func main() {
 	err = SaveFile(img, dstPath, encCfg)
 	if err != nil {
 		fmt.Println(err.Error())
+		os.Exit(1)
 	}
 }
