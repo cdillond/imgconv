@@ -1,0 +1,10 @@
+*.webp
+*.jpeg
+*.gif
+*.tiff
+*.jpg
+*.png
+*.exe
+.vscode
+imgconv
+exp.go
