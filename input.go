@@ -1,11 +1,13 @@
 package main
 
 import (
+	"encoding/base64"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 
 	"image"
 	_ "image/gif"
@@ -66,6 +68,18 @@ func DecodeRemote(u string) (image.Image, utils.FileType, error) {
 			}
 		}
 		return nil, utils.UNSUPPORTED, fmt.Errorf("could not infer scheme from incomplete url: %s", u)
+	}
+	if srcUrl.Scheme == "data" {
+		src, err := ParseDataUrl(srcUrl)
+		if err != nil {
+			return nil, utils.UNSUPPORTED, err
+		}
+		reader := base64.NewDecoder(base64.StdEncoding, strings.NewReader(src))
+		img, format, err := image.Decode(reader)
+		if err != nil {
+			return img, utils.UNSUPPORTED, err
+		}
+		return img, utils.StringToFileType(format), ErrDataURL
 	}
 	if srcUrl.Scheme != "https" && srcUrl.Scheme != "http" {
 		return nil, utils.UNSUPPORTED, fmt.Errorf("unsupported url scheme: %s", srcUrl.Scheme)

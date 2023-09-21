@@ -1,7 +1,9 @@
 package main
 
 import (
+	"errors"
 	"flag"
+	"fmt"
 	"image"
 	"log"
 	"os"
@@ -11,7 +13,11 @@ import (
 
 	"github.com/cdillond/imgconv/pkg/utils"
 	"github.com/cdillond/imgconv/pkg/webpenc"
+
+	"github.com/google/uuid"
 )
+
+var ErrDataURL = errors.New("data url")
 
 func main() {
 	mode := flag.String("mode", "", "[REQUIRED] local, remote, or dir")
@@ -79,6 +85,13 @@ func main() {
 		img, _, err = DecodeLocal(*srcUrl)
 	case "remote":
 		img, _, err = DecodeRemote(*srcUrl)
+		if err == ErrDataURL {
+			err = nil
+			if *dstFileName == "" {
+				tmp := fmt.Sprintf("%s.%s", uuid.NewString(), utils.FileTypeToString(dstFormat))
+				dstFileName = &tmp
+			}
+		}
 	default:
 		log.Fatalln("a valid mode flag is required")
 	}
