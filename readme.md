@@ -1,7 +1,7 @@
 ## About 
 Imgconv is a CLI tool for basic image manipulation. It can be used to convert jpeg, gif, png, tiff, and webp files to jpeg, gif, png, or tiff files. It can also be used to rescale images. Imgconv is powered mainly by Go's standard image library, and it doesn't require the use of cgo. Encoding webp files is currently disabled by default. (Imgconv's experimental support for webp encoding *does* require cgo.)
 
-## How to Use
+## How to use
 To begin, install this package using the Go compiler:
 ```bash
 go install github.com/cdillond/imgconv@latest
@@ -73,7 +73,7 @@ By default, files will be saved under the same name as the source file, with the
 
 
 ## Enabling webp encoding
-Imgconv provides *experimental* support for webp encoding via bindings to Google's [libwebp](https://developers.google.com/speed/webp/docs/compiling) C library. To use this feature, libwebp must be installed in a standard location and cgo must be enabled. When building imgconv, include `webpenc` as a build tag. On Debian-based Linux systems, for example, this can be achieved using the following commands:
+Imgconv provides *experimental* support for webp encoding via bindings to Google's [libwebp](https://developers.google.com/speed/webp/docs/compiling) C library. To use this feature, libwebp must be installed in a standard location and cgo must be enabled (a C compiler is required for this to work). When building imgconv, include `webpenc` as a build tag. On Debian-based Linux systems, for example, this can be achieved using the following commands:
 ```bash
 sudo apt install libwebp-dev
 go env -w CGO_ENABLED=1
